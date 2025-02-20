@@ -40,9 +40,12 @@ return {
             { "<A-9>", "<cmd>BufferLineGoToBuffer 9<CR>" },
             { "<A-0>", "<cmd>BufferLineGoToBuffer 10<CR>" },
             -- Sort buffers
-            { "<Leader>bSd", "<cmd>BufferLineSortByDirectory<CR>", desc = "Sort by directory" },
-            { "<Leader>bSe", "<cmd>BufferLineSortByExtension<CR>", desc = "Sort by extension" },
-            { "<Leader>bSr", "<cmd>BufferLineSortByRelativeDirectory<CR>", desc = "Sort by relative dir" },
+            { "<Leader>bsd", "<cmd>BufferLineSortByDirectory<CR>", desc = "Sort by directory" },
+            { "<Leader>bse", "<cmd>BufferLineSortByExtension<CR>", desc = "Sort by extension" },
+            { "<Leader>bsr", "<cmd>BufferLineSortByRelativeDirectory<CR>", desc = "Sort by relative dir" },
+            -- Delete buffers
+            { "<Leader>bh", "<cmd>BufferLineCloseLeft<CR>", desc = "Delete Buffers to the Left" },
+            { "<Leader>bl", "<cmd>BufferLineCloseRight<CR>", desc = "Delete Buffers to the Right" },
         },
     },
 
