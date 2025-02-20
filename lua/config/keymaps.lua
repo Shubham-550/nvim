@@ -274,12 +274,12 @@ local function get_default_branch_name()
   return res.code == 0 and "main" or "master"
 end
 
-vim.keymap.set("n", "<leader>gdb", function() vim.cmd("DiffviewOpen " .. get_default_branch_name()) end, { desc = "Diff against master" })
+map("n", "<leader>gdb", function() vim.cmd("DiffviewOpen " .. get_default_branch_name()) end, { desc = "Diff against master" })
 
-vim.keymap.set("n", "<leader>gdd", "<cmd>DiffviewOpen<cr>", { desc = "Diff view" })
-vim.keymap.set("v", "<leader>gdd", "<Esc><cmd>'<,'>DiffviewFileHistory --follow<cr>", { desc = "Range history" })
-vim.keymap.set("n", "<leader>gdc", ":DiffviewOpen ", { desc = "Diff custom" })
-vim.keymap.set("n", "<leader>gdhf", "<cmd>DiffviewFileHistory --follow %<cr>", { desc = "File history" })
-vim.keymap.set("n", "<leader>gdhd", "<cmd>DiffviewFileHistory %:p:h<cr>", { desc = "Directory history" })
-vim.keymap.set("n", "<leader>gdhg", "<cmd>DiffviewFileHistory<cr>", { desc = "Global history" })
+map("n", "<leader>gdd", "<cmd>DiffviewOpen<cr>", { desc = "Diff view" })
+map("v", "<leader>gdd", "<Esc><cmd>'<,'>DiffviewFileHistory --follow<cr>", { desc = "Range history" })
+map("n", "<leader>gdc", ":DiffviewOpen ", { desc = "Diff custom" })
+map("n", "<leader>gdhf", "<cmd>DiffviewFileHistory --follow %<cr>", { desc = "File history" })
+map("n", "<leader>gdhd", "<cmd>DiffviewFileHistory %:p:h<cr>", { desc = "Directory history" })
+map("n", "<leader>gdhg", "<cmd>DiffviewFileHistory<cr>", { desc = "Global history" })
 
