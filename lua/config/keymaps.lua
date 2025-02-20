@@ -28,7 +28,7 @@ map("v", "<C-A-j>", "y]p", opts("Duplicate selection down"))
 -- Delete without copying to register
 map("v", "<Del>", '"_d', opts("Delete without yanking"))
 
--- Window navigation and resize
+-- Window navigation
 map({ "i" }, "<C-k>", "<Up>", { desc = "Move up" })
 map({ "i" }, "<C-j>", "<Down>", { desc = "Move down" })
 map({ "i" }, "<C-h>", "<Left>", { desc = "Move left" })
@@ -77,8 +77,8 @@ end, { desc = "Debugger: Step Out" }) -- Shift+F11
 
 -- use gh to move to the beginning of the line in normal mode
 -- use gl to move to the end of the line in normal mode
-map({ "n", "v" }, "gh", "^", { desc = "[P]Go to the beginning line" })
-map({ "n", "v" }, "gl", "$", { desc = "[P]go to the end of the line" })
+map({ "n", "v" }, "gh", "^", { desc = "Go to the beginning line" })
+map({ "n", "v" }, "gl", "$", { desc = "go to the end of the line" })
 -- When you do joins with J it will keep your cursor at the beginning instead of at the end
 map({ "n", "v" }, "J", "mzJ`z", { desc = "Keep cursor in the same position while joining lines" })
 
@@ -120,28 +120,36 @@ end, { desc = "Toggle executable permission" })
 -- return M
 
 vim.api.nvim_create_autocmd("FileType", {
-    pattern = { "c", "cpp" }, -- Apply only for C and C++ files
+    pattern = { "c", "cpp" },
     callback = function()
         local cpp_standard = "-std=c++23"
         local compile_flags = cpp_standard
             .. " -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion -Wshadow -Wold-style-cast -Woverloaded-virtual -Wnon-virtual-dtor -Werror"
 
-        map("n", "<leader>cbr", function()
-            vim.cmd("w")
-            local filename = vim.fn.expand("%:t:r") -- Get filename without extension
-            vim.cmd("split | term clang++ % " .. compile_flags .. " -o %:r && ./" .. filename)
-        end, { noremap = true, silent = true, desc = "Compile & Run C++ in Terminal", buffer = true })
+        local filepath = vim.fn.expand("%:p") -- Full path of the current file
+        local output_path = vim.fn.expand("%:r") -- Output path without extension
 
-        map("n", "<leader>cbc", function()
-            vim.cmd("w")
-            vim.cmd("split | term clang++ % " .. compile_flags .. " -o %:r")
-        end, { noremap = true, silent = true, desc = "Compile C++ Code", buffer = true })
+        map(
+            "n",
+            "<leader>cbr",
+            ":w<CR>:split | term clang++ "
+                .. filepath
+                .. " "
+                .. compile_flags
+                .. " -o "
+                .. output_path
+                .. " && "
+                .. output_path
+                .. "<CR>",
+            { noremap = true, silent = true, desc = "Compile & Run C++ in Terminal" }
+        )
 
-        map("n", "<leader>cbd", function()
-            vim.cmd("w")
-            local filename = vim.fn.expand("%:t:r") -- Get filename without extension
-            vim.cmd("split | term clang++ % " .. compile_flags .. " -o %:r && lldb ./" .. filename)
-        end, { noremap = true, silent = true, desc = "Compile & Debug C++ in LLDB", buffer = true })
+        map(
+            "n",
+            "<leader>cbc",
+            ":w<CR>:!clang++ " .. filepath .. " " .. compile_flags .. " -o " .. output_path .. "<CR>",
+            { noremap = true, silent = true, desc = "Compile C++ Code" }
+        )
     end,
 })
 
@@ -270,11 +278,13 @@ map("x", "<localleader>md", function()
 end, { desc = "Diff selection with clipboard" })
 
 local function get_default_branch_name()
-  local res = vim.system({ "git", "rev-parse", "--verify", "main" }, { capture_output = true }):wait()
-  return res.code == 0 and "main" or "master"
+    local res = vim.system({ "git", "rev-parse", "--verify", "main" }, { capture_output = true }):wait()
+    return res.code == 0 and "main" or "master"
 end
 
-map("n", "<leader>gdb", function() vim.cmd("DiffviewOpen " .. get_default_branch_name()) end, { desc = "Diff against master" })
+map("n", "<leader>gdb", function()
+    vim.cmd("DiffviewOpen " .. get_default_branch_name())
+end, { desc = "Diff against master" })
 
 map("n", "<leader>gdd", "<cmd>DiffviewOpen<cr>", { desc = "Diff view" })
 map("v", "<leader>gdd", "<Esc><cmd>'<,'>DiffviewFileHistory --follow<cr>", { desc = "Range history" })
@@ -282,4 +292,3 @@ map("n", "<leader>gdc", ":DiffviewOpen ", { desc = "Diff custom" })
 map("n", "<leader>gdhf", "<cmd>DiffviewFileHistory --follow %<cr>", { desc = "File history" })
 map("n", "<leader>gdhd", "<cmd>DiffviewFileHistory %:p:h<cr>", { desc = "Directory history" })
 map("n", "<leader>gdhg", "<cmd>DiffviewFileHistory<cr>", { desc = "Global history" })
-
