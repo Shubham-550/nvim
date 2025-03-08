@@ -48,37 +48,21 @@ map("i", "jj", "<Esc>", opts("Exit insert mode"))
 map({ "n", "i" }, "qq", "<cmd>q<CR>", opts("Quick quit"))
 map("n", "QQ", "<cmd>bufdo bd<CR>", opts("Quit all buffers"))
 
+map({ "t" }, "kj", "<C-\\><C-n>", { desc = "Escape insert mode" })
+
 -- Enter creates new line
 map({ "n" }, "<CR>", "o<Esc>", { noremap = true, silent = true })
 map({ "n" }, "<S-CR>", "O<Esc>", { noremap = true, silent = true })
 
 -- Add some DAP mappings
-map("n", "<F5>", function()
-    require("dap").continue()
-end, { desc = "Debugger: Start" })
-map("n", "<F6>", function()
-    require("dap").pause()
-end, { desc = "Debugger: Pause" })
-map("n", "<F9>", function()
-    require("dap").toggle_breakpoint()
-end, { desc = "Debugger: Toggle Breakpoint" })
-map("n", "<F10>", function()
-    require("dap").step_over()
-end, { desc = "Debugger: Step Over" })
-map("n", "<F11>", function()
-    require("dap").step_into()
-end, { desc = "Debugger: Step Into" })
-map("n", "<F17>", function()
-    require("dap").terminate()
-end, { desc = "Debugger: Terminate" }) -- Shift+F5
-map("n", "<F23>", function()
-    require("dap").step_out()
-end, { desc = "Debugger: Step Out" }) -- Shift+F11
+map("n", "<F5>", function() require("dap").continue() end, { desc = "Debugger: Start" })
+map("n", "<F6>", function() require("dap").pause() end, { desc = "Debugger: Pause" })
+map("n", "<F9>", function() require("dap").toggle_breakpoint() end, { desc = "Debugger: Toggle Breakpoint" })
+map("n", "<F10>", function() require("dap").step_over() end, { desc = "Debugger: Step Over" })
+map("n", "<F11>", function() require("dap").step_into() end, { desc = "Debugger: Step Into" })
+map("n", "<F17>", function() require("dap").terminate() end, { desc = "Debugger: Terminate" }) -- Shift+F5
+map("n", "<F23>", function() require("dap").step_out() end, { desc = "Debugger: Step Out" }) -- Shift+F11
 
--- use gh to move to the beginning of the line in normal mode
--- use gl to move to the end of the line in normal mode
-map({ "n", "v" }, "gh", "^", { desc = "Go to the beginning line" })
-map({ "n", "v" }, "gl", "$", { desc = "go to the end of the line" })
 -- When you do joins with J it will keep your cursor at the beginning instead of at the end
 map({ "n", "v" }, "J", "mzJ`z", { desc = "Keep cursor in the same position while joining lines" })
 
@@ -119,39 +103,167 @@ end, { desc = "Toggle executable permission" })
 --
 -- return M
 
-vim.api.nvim_create_autocmd("FileType", {
-    pattern = { "c", "cpp" },
-    callback = function()
-        local cpp_standard = "-std=c++23"
-        local compile_flags = cpp_standard
-            .. " -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion -Wshadow -Wold-style-cast -Woverloaded-virtual -Wnon-virtual-dtor -Werror"
+-- vim.api.nvim_create_autocmd("FileType", {
+--     pattern = { "c", "cpp" },
+--     callback = function()
+--         local filetype = vim.bo.filetype
+--         local compile_flags =
+--             " -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Wold-style-cast -Woverloaded-virtual -Wnon-virtual-dtor -Werror"
+--
+--         local compiler = ""
+--         if filetype == "cpp" then
+--             compiler = "clang++ -std=c++23"
+--         elseif filetype == "c" then
+--             compiler = "clang -std=c23"
+--         end
+--
+--         -- Determine the project root (current working directory)
+--         local project_root = vim.print(require("lazyvim.util").root())
+--         local build_dir = project_root .. "/build"
+--         local debug_dir = build_dir .. "/Debug"
+--
+--         -- Create directories if they don't exist
+--         vim.fn.mkdir(build_dir, "p")
+--         vim.fn.mkdir(debug_dir, "p")
+--
+--         -- Get file paths
+--         local filepath = '"' .. vim.fn.expand("%:p") .. '"' -- Full path to current file
+--         local filename = vim.fn.expand("%:t:r") -- File name without extension
+--
+--         -- Define output paths for run and debug builds (wrapped in quotes)
+--         local run_output = '"' .. build_dir .. "/" .. filename .. '"'
+--         local debug_output = '"' .. debug_dir .. "/" .. filename .. '"'
+--
+--         -- Build the compile & run command (normal run)
+--         local run_cmd = compiler
+--             .. " "
+--             .. compile_flags
+--             .. " "
+--             .. filepath
+--             .. " -o "
+--             .. run_output
+--             .. " && "
+--             .. run_output
+--         local full_run_cmd = ":w<CR>:split | term bash -c '" .. run_cmd .. "'<CR>"
+--         map(
+--             "n",
+--             "<leader>cbr",
+--             full_run_cmd,
+--             { noremap = true, silent = true, desc = "Compile & Run C/C++ in Terminal" }
+--         )
+--
+--         -- Build the compile-only command (normal run)
+--         local compile_only_cmd = ":w<CR>:!"
+--             .. compiler
+--             .. " "
+--             .. compile_flags
+--             .. " "
+--             .. filepath
+--             .. " -o "
+--             .. run_output
+--             .. "<CR>"
+--         map("n", "<leader>cbc", compile_only_cmd, { noremap = true, silent = true, desc = "Compile C/C++ Code" })
+--
+--         -- Build the compile & debug command (launches lldb on the Debug build)
+--         local debug_cmd = compiler
+--             .. " "
+--             .. compile_flags
+--             .. " "
+--             .. filepath
+--             .. " -o "
+--             .. debug_output
+--             .. " && codelldb "
+--             .. debug_output
+--         local full_debug_cmd = ":w<CR>:split | term bash -c '" .. debug_cmd .. "'<CR>"
+--         map(
+--             "n",
+--             "<leader>cbd",
+--             full_debug_cmd,
+--             { noremap = true, silent = true, desc = "Compile & Debug C/C++ in Terminal" }
+--         )
+--     end,
+-- })
 
-        local filepath = vim.fn.expand("%:p") -- Full path of the current file
-        local output_path = vim.fn.expand("%:r") -- Output path without extension
-
-        map(
-            "n",
-            "<leader>cbr",
-            ":w<CR>:split | term clang++ "
-                .. filepath
-                .. " "
-                .. compile_flags
-                .. " -o "
-                .. output_path
-                .. " && "
-                .. output_path
-                .. "<CR>",
-            { noremap = true, silent = true, desc = "Compile & Run C++ in Terminal" }
-        )
-
-        map(
-            "n",
-            "<leader>cbc",
-            ":w<CR>:!clang++ " .. filepath .. " " .. compile_flags .. " -o " .. output_path .. "<CR>",
-            { noremap = true, silent = true, desc = "Compile C++ Code" }
-        )
-    end,
-})
+-- vim.api.nvim_create_autocmd("FileType", {
+--     pattern = { "c", "cpp" },
+--     callback = function()
+--         local filetype = vim.bo.filetype
+--         local compile_flags =
+--             " -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Wold-style-cast -Woverloaded-virtual -Wnon-virtual-dtor -Werror"
+--
+--         local compiler = ""
+--         if filetype == "cpp" then
+--             compiler = "clang++ -std=c++23"
+--         elseif filetype == "c" then
+--             compiler = "clang -std=c23"
+--         end
+--
+--         -- Get file paths
+--         local filepath = vim.fn.expand("%:p")
+--         local filepathWithoutExt = vim.fn.expand("%:p:r")
+--
+--         -- Define output paths for run and debug builds (wrapped in quotes)
+--         -- local run_output = '"' .. build_dir .. "/" .. filename .. '"'
+--         -- local debug_output = '"' .. debug_dir .. "/" .. filename .. '"'
+--
+--         -- Build the compile & run command (normal run)
+--         local run_cmd = compiler
+--             .. " "
+--             .. compile_flags
+--             .. " "
+--             .. filepath
+--             .. " -o "
+--             .. '"'
+--             .. filepathWithoutExt
+--             .. '"'
+--             .. " && "
+--             .. '"'
+--             .. filepathWithoutExt
+--             .. '"'
+--             .. " && rm "
+--             .. '"'
+--             .. filepathWithoutExt
+--             .. '"'
+--         local full_run_cmd = ":w<CR>:split | term bash -c '" .. run_cmd .. "'<CR>"
+--         map(
+--             "n",
+--             "<leader>rr",
+--             full_run_cmd,
+--             { noremap = true, silent = true, desc = "Compile & Run C/C++ in Terminal" }
+--         )
+--
+--         -- Build the compile-only command (normal run)
+--         local compile_only_cmd = ":w<CR>:!"
+--             .. compiler
+--             .. " "
+--             .. compile_flags
+--             .. " "
+--             .. filepath
+--             .. " -o "
+--             .. '"'
+--             .. filepathWithoutExt
+--             .. '"'
+--         map("n", "<leader>rc", compile_only_cmd, { noremap = true, silent = true, desc = "Compile C/C++ Code" })
+--
+--         -- -- Build the compile & debug command (launches lldb on the Debug build)
+--         -- local debug_cmd = compiler
+--         --     .. " "
+--         --     .. compile_flags
+--         --     .. " "
+--         --     .. filepath
+--         --     .. " -o "
+--         --     .. debug_output
+--         --     .. " && codelldb "
+--         --     .. debug_output
+--         -- local full_debug_cmd = ":w<CR>:split | term bash -c '" .. debug_cmd .. "'<CR>"
+--         -- map(
+--         --     "n",
+--         --     "<leader>cbd",
+--         --     full_debug_cmd,
+--         --     { noremap = true, silent = true, desc = "Compile & Debug C/C++ in Terminal" }
+--         -- )
+--     end,
+-- })
 
 -- More convenient horizontal scrolling
 vim.api.nvim_set_keymap(
@@ -179,7 +291,7 @@ vim.api.nvim_set_keymap(
     { noremap = true, silent = true, desc = "Right half-screen scroll" }
 )
 
--- Testing centering cursor
+--  Centering cursor
 vim.api.nvim_set_keymap(
     "n",
     "<C-d>",
@@ -207,6 +319,7 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap("n", "n", "nzzzv", { noremap = true, silent = true, desc = "Next match centered" })
 vim.api.nvim_set_keymap("n", "N", "Nzzzv", { noremap = true, silent = true, desc = "Previous match centered" })
 
+-- Operataion without yanking
 map({ "n", "x" }, "c", '"_c', { desc = "c without yank" })
 map({ "n", "x" }, "C", '"_C', { desc = "C without yank" })
 map({ "n", "x" }, "x", '"_x', { desc = "x without yank" })
@@ -277,14 +390,18 @@ map("x", "<localleader>md", function()
     vim.cmd.diffthis()
 end, { desc = "Diff selection with clipboard" })
 
+-- Diffview
 local function get_default_branch_name()
     local res = vim.system({ "git", "rev-parse", "--verify", "main" }, { capture_output = true }):wait()
     return res.code == 0 and "main" or "master"
 end
 
-map("n", "<leader>gdb", function()
-    vim.cmd("DiffviewOpen " .. get_default_branch_name())
-end, { desc = "Diff against master" })
+map(
+    "n",
+    "<leader>gdb",
+    function() vim.cmd("DiffviewOpen " .. get_default_branch_name()) end,
+    { desc = "Diff against master" }
+)
 
 map("n", "<leader>gdd", "<cmd>DiffviewOpen<cr>", { desc = "Diff view" })
 map("v", "<leader>gdd", "<Esc><cmd>'<,'>DiffviewFileHistory --follow<cr>", { desc = "Range history" })
@@ -292,3 +409,29 @@ map("n", "<leader>gdc", ":DiffviewOpen ", { desc = "Diff custom" })
 map("n", "<leader>gdhf", "<cmd>DiffviewFileHistory --follow %<cr>", { desc = "File history" })
 map("n", "<leader>gdhd", "<cmd>DiffviewFileHistory %:p:h<cr>", { desc = "Directory history" })
 map("n", "<leader>gdhg", "<cmd>DiffviewFileHistory<cr>", { desc = "Global history" })
+
+-- Code runner
+map("n", "<leader>rr", ":RunCode<CR>", { desc = "Run code" })
+map("n", "<leader>rf", ":RunFile<CR>", { desc = "Run file" })
+map("n", "<leader>rp", ":RunProject<CR>", { desc = "Run Project" })
+
+-- Harpoon
+map({ "n", "v" }, "<leader>hh", function()
+    local harpoon = require("harpoon")
+    harpoon.ui:toggle_quick_menu(harpoon:list())
+end, { desc = "Harpoon toggle menu" })
+
+map({ "n", "v" }, "<leader>ha", function()
+    local harpoon = require("harpoon")
+    harpoon:list():add()
+end, { desc = "Harpoon Add File" })
+
+map({ "n", "v" }, "<leader>hj", function()
+    local harpoon = require("harpoon")
+    harpoon:list():next()
+end, { desc = "Harpoon Next" })
+
+map({ "n", "v" }, "<leader>hk", function()
+    local harpoon = require("harpoon")
+    harpoon:list():prev()
+end, { desc = "Harpoon Prev" })

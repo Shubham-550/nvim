@@ -5,6 +5,14 @@ return {
 
         opts = {
             picker = {
+                sources = {
+                    files = { hidden = true },
+                    explorer = {
+                        hidden = true,
+                        exclude = { ".git", ".venv", "venv", "__pycache__" },
+                    },
+                },
+
                 formatters = {
                     file = {
                         filename_first = true, -- display filename before the file path

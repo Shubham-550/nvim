@@ -27,3 +27,5 @@ vim.g.python3_host_prog = "~/.virtualenvs/debugpy/bin/python"
 -- codeblock languages, obsidian.nvim works better with 1 or 2
 -- Set it to 2 if using kitty or codeblocks will look weird
 vim.opt.conceallevel = 2
+
+vim.g.root_spec = { "lsp", { ".git", "lua" }, ".vscode", "cwd" }

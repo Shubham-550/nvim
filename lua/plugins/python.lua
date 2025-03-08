@@ -1,4 +1,4 @@
-local prefix = "<Leader>ci"
+local prefix = "<Leader>cp"
 return {
     {
         "mfussenegger/nvim-dap-python",
@@ -39,14 +39,14 @@ return {
                 desc = "Send to ipython terminal",
                 mode = "n",
             },
-            {
-                "<Leader>r",
-                function()
-                    require("nvim-python-repl").send_statement_definition()
-                end,
-                desc = "Send to ipython terminal",
-                mode = "n",
-            },
+            -- {
+            --     "<Leader>r",
+            --     function()
+            --         require("nvim-python-repl").send_statement_definition()
+            --     end,
+            --     desc = "Send to ipython terminal",
+            --     mode = "n",
+            -- },
             {
                 prefix .. "b",
                 function()
@@ -83,14 +83,14 @@ return {
                 mode = "n",
             },
             -- Visual mode keymaps
-            {
-                "<Leader>r",
-                function()
-                    require("nvim-python-repl").send_visual_to_repl()
-                end,
-                desc = "Send to ipython terminal",
-                mode = "v",
-            },
+            -- {
+            --     "<Leader>r",
+            --     function()
+            --         require("nvim-python-repl").send_visual_to_repl()
+            --     end,
+            --     desc = "Send to ipython terminal",
+            --     mode = "v",
+            -- },
         },
         ft = { "python", "lua", "scala" },
         config = function()
